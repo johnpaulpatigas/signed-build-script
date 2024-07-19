@@ -4,9 +4,9 @@
 read -p "Enter country code 'US' (C): " country
 read -p "Enter state or province name 'California' (ST): " state
 read -p "Enter locality 'Los Angeles' (L): " locality
-read -p "Enter organization name 'crDroid' (O): " organization
-read -p "Enter organizational unit 'crDroid' (OU): " organizational_unit
-read -p "Enter common name 'crdroid' (CN): " common_name
+read -p "Enter organization name 'PixelOS' (O): " organization
+read -p "Enter organizational unit 'PixelOS' (OU): " organizational_unit
+read -p "Enter common name 'pixelos' (CN): " common_name
 read -p "Enter email address 'android@android.com' (emailAddress): " email
 
 # Construct the subject line
@@ -26,8 +26,7 @@ if [[ $confirmation != "y" && $confirmation != "Y" ]]; then
 fi
 clear
 
-
-# Create Key
+# Create key
 echo "Press ENTER TWICE to skip password (about 10-15 enter hits total). Cannot use a password for inline signing!"
 mkdir ~/.android-certs
 
@@ -35,22 +34,8 @@ for x in bluetooth media networkstack nfc platform releasekey sdk_sandbox shared
     ./development/tools/make_key ~/.android-certs/$x "$subject"; \
 done
 
+mv ~/.android-certs/* vendor/aosp/signing/keys/
 
-## Create vendor for keys
-mkdir -p vendor/lineage-priv
-mv ~/.android-certs vendor/lineage-priv/keys
-echo "PRODUCT_DEFAULT_DEV_CERTIFICATE := vendor/lineage-priv/keys/releasekey" > vendor/lineage-priv/keys/keys.mk
-cat <<EOF > vendor/lineage-priv/keys/BUILD.bazel
-filegroup(
-    name = "android_certificate_directory",
-    srcs = glob([
-        "*.pk8",
-        "*.pem",
-    ]),
-    visibility = ["//visibility:public"],
-)
-EOF
-
-echo "Done! Now build as usual. If builds aren't being signed, add '-include vendor/lineage-priv/keys/keys.mk' to your device mk file"
-echo "Make copies of your vendor/lineage-priv folder as it contains your keys!"
+echo "Done! Now build as usual."
+echo "Make copies of your vendor/aosp/signing/keys folder as it contains your keys!"
 sleep 3
